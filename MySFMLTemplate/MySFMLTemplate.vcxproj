@@ -150,6 +150,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Game.hpp" />
+    <ClInclude Include="Include\ResourceHolder.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Include\ResourceHolder.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

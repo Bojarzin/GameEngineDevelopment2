@@ -1,7 +1,5 @@
 ﻿  Game.cpp
-E:\Workspace\Github\GameEngineDevelopment2\MySFMLTemplate\Source\Game.cpp(46,44): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-          with
-          [
-              T=unsigned int
-          ]
-  MySFMLTemplate.vcxproj -> E:\Workspace\Github\GameEngineDevelopment2\MySFMLTemplate\x64\Debug\MySFMLTemplate.exe
+E:\Workspace\Github\GameEngineDevelopment2\MySFMLTemplate\Include\ResourceHolder.inl(11): fatal error C1075: '{': no matching token found
+  Main.cpp
+E:\Workspace\Github\GameEngineDevelopment2\MySFMLTemplate\Include\ResourceHolder.inl(11): fatal error C1075: '{': no matching token found
+  Generating Code...

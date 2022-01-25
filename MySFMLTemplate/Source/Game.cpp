@@ -6,34 +6,39 @@ const sf::Time Game::timePerFrame = sf::seconds(1.0f / 60.f);
 Game::Game()
 	:mWindow(sf::VideoMode(800, 600), "My First SFML", sf::Style::Close),
 	mPlayer(),
-	mTexture(),
+	mBackgroundTexture(),
 	mPlayerTexture(),
 	mBackground(),
 	mIcon(),
 	mFont(),
 	mText(),
 	mMusic(),
-	movementVector(0.0f, 0.0f)
+	movementVector(0.0f, 0.0f),
+	mStatisticsText(),
+	mStatisticsUpdateTime(),
+	mStatisticsNumberOfFrames(0)
 {
 	mIcon.loadFromFile("Media/Textures/Icon.png");
 	mWindow.setIcon(mIcon.getSize().x, mIcon.getSize().y, mIcon.getPixelsPtr());
 
-	if (!mPlayerTexture.loadFromFile("Media/Textures/Eagle.png"))
+	try
 	{
-		std::cout << "Could not load texture Eagle.png";
-		return;
+		textures.Load(Textures::AIRPLANE, "Media/Textures/Eagle.png");
+		textures.Load(Textures::LANDSCAPE, "Media/Textures/cute_image.jpg");
 	}
+	catch (std::runtime_error& e)
+	{
+		std::cout << "Excepetion " << e.what() << std::endl;
+	}
+
+
+	mPlayerTexture = textures.Get(Textures::AIRPLANE);
 
 	mPlayer.setTexture(mPlayerTexture);
 	mPlayer.setPosition(100.0f, 100.0f);
 
-	if (!mTexture.loadFromFile("Media/Textures/cute_image.jpg"))
-	{
-		std::cout << "Could not load background file cute_image.jpg";
-		return;
-	}
-	
-	mBackground.setTexture(mTexture);
+	mBackgroundTexture = textures.Get(Textures::LANDSCAPE);
+	mBackground.setTexture(mBackgroundTexture);
 
 	if (!mFont.loadFromFile("Media/Sansation.ttf"))
 	{
@@ -41,20 +46,20 @@ Game::Game()
 		return;
 	}
 
-	mText.setFont(mFont);
-	mText.setCharacterSize(20);
-	mText.setPosition(mWindow.getSize().x / 2 - mText.getCharacterSize()*2, 50);
-	mText.setFillColor(sf::Color::White);
-	mText.setOutlineColor(sf::Color::Black);
-	mText.setOutlineThickness(2.0f);
-	mText.setString("Welcome to my game!");
+	mStatisticsText.setFont(mFont);
+	mStatisticsText.setCharacterSize(20);
+	mStatisticsText.setPosition(mWindow.getSize().x / 2 - mText.getCharacterSize()*2, 50);
+	mStatisticsText.setFillColor(sf::Color::White);
+	mStatisticsText.setOutlineColor(sf::Color::Black);
+	mStatisticsText.setOutlineThickness(2.0f);
+	//mStatisticsText.setString("Welcome to my game!");
 
 	if (!mMusic.openFromFile("Media/Sound/nice_music.ogg"))
 	{
 		std::cout << "Could not load music file nice_music.ogg";
 		return;
 	}
-	mMusic.setVolume(25.0f);
+	mMusic.setVolume(1.0f);
 	mMusic.play();
 }
 
@@ -66,10 +71,17 @@ void Game::Run()
 	while (mWindow.isOpen())
 	{
 		sf::Time elapsedTime = clock.restart();
+		timeSinceLastUpdate += elapsedTime;
 
+		while (timeSinceLastUpdate > timePerFrame)
+		{
+			ProcessEvents();
+			Update(elapsedTime);
 
-		ProcessEvents();
-		Update(elapsedTime);
+			timeSinceLastUpdate -= timePerFrame;
+		}
+		UpdateStatistics(elapsedTime);
+
 		Render();
 	}
 }
@@ -77,7 +89,6 @@ void Game::Run()
 void Game::ProcessEvents()
 {
 	sf::Event event;
-
 	while (mWindow.pollEvent(event))
 	{
 		switch (event.type)
@@ -104,6 +115,11 @@ void Game::ProcessEvents()
 		}
 	}
 	
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		sf::Vector2i mousePosition = sf::Mouse::getPosition(mWindow);
+		mPlayer.setPosition(mousePosition.x, mousePosition.y);
+	}
 }
 
 void Game::HandlePlayerInput(sf::Keyboard::Key _key, bool _isPressed)
@@ -123,6 +139,24 @@ void Game::HandlePlayerInput(sf::Keyboard::Key _key, bool _isPressed)
 	if (_key == sf::Keyboard::D)
 	{
 		mIsMovingRight = _isPressed;
+	}
+}
+
+void Game::UpdateStatistics(sf::Time _elapsedTime)
+{
+	mStatisticsUpdateTime += _elapsedTime;
+	mStatisticsNumberOfFrames += 1;
+
+	if (mStatisticsUpdateTime >= sf::seconds(1.0f))
+	{
+		mStatisticsText.setString
+		(
+		"Frame/Second " + std::to_string(mStatisticsNumberOfFrames) + "\n" +
+		"Time/Update " + std::to_string(mStatisticsUpdateTime.asMicroseconds() / mStatisticsNumberOfFrames)
+		);
+
+		mStatisticsUpdateTime -= sf::seconds(1.0f);
+		mStatisticsNumberOfFrames = 0;
 	}
 }
 
@@ -155,6 +189,6 @@ void Game::Render()
 	mWindow.clear();
 	mWindow.draw(mBackground);
 	mWindow.draw(mPlayer);
-	mWindow.draw(mText);
+	mWindow.draw(mStatisticsText);
 	mWindow.display();
 }

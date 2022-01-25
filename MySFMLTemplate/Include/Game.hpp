@@ -2,6 +2,16 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include <ResourceHolder.hpp>
+
+namespace Textures
+{
+	enum ID
+	{
+		LANDSCAPE,
+		AIRPLANE
+	};
+}
 
 class Game : private sf::NonCopyable
 {
@@ -17,11 +27,12 @@ class Game : private sf::NonCopyable
 		void Render();
 	
 		void HandlePlayerInput(sf::Keyboard::Key _key, bool _isPressed);
+		void UpdateStatistics(sf::Time _elapsedTime);
 	
 		// Variables
 		sf::RenderWindow mWindow;
 		sf::Sprite mPlayer;
-		sf::Texture mTexture;
+		sf::Texture mBackgroundTexture;
 		sf::Texture mPlayerTexture;
 		sf::Sprite mBackground;
 		sf::Image mIcon;
@@ -37,4 +48,9 @@ class Game : private sf::NonCopyable
 
 		static const float playerSpeed;
 		static const sf::Time timePerFrame;
+		sf::Text mStatisticsText;
+		sf::Time mStatisticsUpdateTime;
+		std::size_t mStatisticsNumberOfFrames;
+
+		ResourceHolder<sf::Texture, Textures::ID> textures;
 };
